@@ -57,13 +57,14 @@ namespace android {
 
         int         RkRgaInit();
         void        RkRgaDeInit();
+        void        RkRgaGetContext(void **ctx);
 #ifndef ANDROID /* LINUX */
         int         RkRgaAllocBuffer(int drm_fd /* input */, bo_t *bo_info,
                                      int width, int height, int bpp, int flags);
         int         RkRgaFreeBuffer(int drm_fd /* input */, bo_t *bo_info);
         int         RkRgaGetAllocBuffer(bo_t *bo_info, int width, int height, int bpp);
-		int         RkRgaGetAllocBufferExt(bo_t *bo_info, int width, int height, int bpp, int flags);
-		int         RkRgaGetAllocBufferCache(bo_t *bo_info, int width, int height, int bpp);
+        int         RkRgaGetAllocBufferExt(bo_t *bo_info, int width, int height, int bpp, int flags);
+        int         RkRgaGetAllocBufferCache(bo_t *bo_info, int width, int height, int bpp);
         int         RkRgaGetMmap(bo_t *bo_info);
         int         RkRgaUnmap(bo_t *bo_info);
         int         RkRgaFree(bo_t *bo_info);
@@ -73,7 +74,6 @@ namespace android {
         int         RkRgaGetHandleMapCpuAddress(buffer_handle_t handle, void **buf);
 #endif
         int         RkRgaBlit(rga_info *src, rga_info *dst, rga_info *src1);
-        int         RkRgaSrcOver(rga_info *src, rga_info *dst, rga_info *src1);
         int         RkRgaCollorFill(rga_info *dst);
         int         RkRgaCollorPalette(rga_info *src, rga_info *dst, rga_info *lut);
         int         RkRgaFlush();

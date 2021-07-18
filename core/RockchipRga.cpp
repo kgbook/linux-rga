@@ -66,7 +66,8 @@
 #endif
 #endif
 
-#define RK_GRAPHICS_VER "version:1.00"
+#include "version.h"
+
 #ifdef ANDROID
 namespace android {
 // ---------------------------------------------------------------------------
@@ -81,7 +82,7 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
         mLogAlways(0),
         mContext(NULL) {
         RkRgaInit();
-        ALOGE("Rga built version:%s", RK_GRAPHICS_VER);
+        ALOGE("%s", RGA_API_FULL_VERSION);
     }
 
     RockchipRga::~RockchipRga() {
@@ -110,6 +111,10 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
         mSupportRga = false;
     }
 
+    void RockchipRga::RkRgaGetContext(void **ctx) {
+        memcpy(ctx, &mContext, sizeof(*ctx));
+    }
+
 #ifdef LINUX
     int RockchipRga::RkRgaAllocBuffer(int drm_fd, bo_t *bo_info, int width,
                                       int height, int bpp, int flags) {
@@ -121,7 +126,7 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
         arg.bpp = bpp;
         arg.width = width;
         arg.height = height;
-		arg.flags = flags;
+        arg.flags = flags;
 
         ret = drmIoctl(drm_fd, DRM_IOCTL_MODE_CREATE_DUMB, &arg);
         if (ret) {
@@ -161,7 +166,7 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
 #endif
     }
 
-	int RockchipRga::RkRgaGetAllocBufferExt(bo_t *bo_info, int width, int height, int bpp, int flags) {
+    int RockchipRga::RkRgaGetAllocBufferExt(bo_t *bo_info, int width, int height, int bpp, int flags) {
         static const char* card = "/dev/dri/card0";
         int ret;
         int drm_fd;
@@ -185,13 +190,13 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
         return 0;
     }
 
-	int RockchipRga::RkRgaGetAllocBuffer(bo_t *bo_info, int width, int height, int bpp) {
-		return RkRgaGetAllocBufferExt(bo_info, width, height, bpp, 0);
-	}
+    int RockchipRga::RkRgaGetAllocBuffer(bo_t *bo_info, int width, int height, int bpp) {
+        return RkRgaGetAllocBufferExt(bo_info, width, height, bpp, 0);
+    }
 
-	int RockchipRga::RkRgaGetAllocBufferCache(bo_t *bo_info, int width, int height, int bpp) {
-		return RkRgaGetAllocBufferExt(bo_info, width, height, bpp, ROCKCHIP_BO_CACHABLE);
-	}
+    int RockchipRga::RkRgaGetAllocBufferCache(bo_t *bo_info, int width, int height, int bpp) {
+        return RkRgaGetAllocBufferExt(bo_info, width, height, bpp, ROCKCHIP_BO_CACHABLE);
+    }
 
     int RockchipRga::RkRgaGetMmap(bo_t *bo_info) {
 #if LIBDRM
@@ -248,11 +253,11 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
         return ret;
     }
 
-	int RockchipRga::RkRgaGetHandleMapCpuAddress(buffer_handle_t handle, void **buf) {
-		int ret = 0;
-		ret = RkRgaGetHandleMapAddress(handle, buf);
-		return ret;
-	}
+    int RockchipRga::RkRgaGetHandleMapCpuAddress(buffer_handle_t handle, void **buf) {
+        int ret = 0;
+        ret = RkRgaGetHandleMapAddress(handle, buf);
+        return ret;
+    }
 #endif
 
     int RockchipRga::RkRgaBlit(rga_info *src, rga_info *dst, rga_info *src1) {
@@ -263,18 +268,6 @@ RGA_SINGLETON_STATIC_INSTANCE(RockchipRga)
             RkRgaLogOutUserPara(dst);
             RkRgaLogOutUserPara(src1);
             ALOGE("This output the user patamaters when rga call blit fail");
-        }
-        return ret;
-    }
-
-    int RockchipRga::RkRgaSrcOver(rga_info *src, rga_info *dst, rga_info *src1) {
-        int ret = 0;
-        ret = RgaSrcOver(src, dst, src1);
-        if (ret) {
-            RkRgaLogOutUserPara(src);
-            RkRgaLogOutUserPara(dst);
-            RkRgaLogOutUserPara(src1);
-            ALOGE("This output the user patamaters when rga call SrcOver fail");
         }
         return ret;
     }

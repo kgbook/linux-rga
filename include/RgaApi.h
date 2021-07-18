@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Rockchip Electronics Co., Ltd.
  * Authors:
- *	Zhiqin Wei <wzq@rock-chips.com>
+ *    Zhiqin Wei <wzq@rock-chips.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef _rockchip_rga_c_h_
+#define _rockchip_rga_c_h_
+
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -41,13 +44,15 @@ extern "C"{
  * compatibility with the old C interface, so please do
  * not use ctx, because it is usually a NULL.
  */
-#define RgaInit(ctx) { \
-	(void)ctx;		/* unused */ \
-	c_RkRgaInit(); \
-}
+#define RgaInit(ctx) ({ \
+    int ret = 0; \
+    ret = c_RkRgaInit(); \
+    c_RkRgaGetContext(ctx); \
+    ret;\
+})
 #define RgaDeInit(ctx) { \
-	(void)ctx;		/* unused */ \
-	c_RkRgaDeInit(); \
+    (void)ctx;        /* unused */ \
+    c_RkRgaDeInit(); \
 }
 #define RgaBlit(...) c_RkRgaBlit(__VA_ARGS__)
 #define RgaCollorFill(...) c_RkRgaColorFill(__VA_ARGS__)
@@ -55,6 +60,7 @@ extern "C"{
 
 int  c_RkRgaInit();
 void c_RkRgaDeInit();
+void c_RkRgaGetContext(void **ctx);
 int  c_RkRgaBlit(rga_info_t *src, rga_info_t *dst, rga_info_t *src1);
 int  c_RkRgaColorFill(rga_info_t *dst);
 int  c_RkRgaFlush();
@@ -71,3 +77,5 @@ int c_RkRgaGetBufferFd(bo_t *bo_info, int *fd);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* #ifndef _rockchip_rga_c_h_ */

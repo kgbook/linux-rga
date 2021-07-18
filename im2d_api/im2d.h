@@ -28,8 +28,6 @@ extern "C" {
 #define IM_API /* define API export as needed */
 #endif
 
-#define RGA_IM2D_VERSION "1.11"
-
 typedef enum {
     /* Rotation */
     IM_HAL_TRANSFORM_ROT_90     = 1 << 0,
@@ -37,32 +35,39 @@ typedef enum {
     IM_HAL_TRANSFORM_ROT_270    = 1 << 2,
     IM_HAL_TRANSFORM_FLIP_H     = 1 << 3,
     IM_HAL_TRANSFORM_FLIP_V     = 1 << 4,
-    IM_HAL_TRANSFORM_MASK       = 0x1f,
+    IM_HAL_TRANSFORM_FLIP_H_V   = 1 << 5,
+    IM_HAL_TRANSFORM_MASK       = 0x3f,
 
     /*
      * Blend
      * Additional blend usage, can be used with both source and target configs.
      * If none of the below is set, the default "SRC over DST" is applied.
      */
-    IM_ALPHA_BLEND_SRC_OVER     = 1 << 5,     /* Default, Porter-Duff "SRC over DST" */
-    IM_ALPHA_BLEND_SRC          = 1 << 6,     /* Porter-Duff "SRC" */
-    IM_ALPHA_BLEND_DST          = 1 << 7,     /* Porter-Duff "DST" */
-    IM_ALPHA_BLEND_SRC_IN       = 1 << 8,     /* Porter-Duff "SRC in DST" */
-    IM_ALPHA_BLEND_DST_IN       = 1 << 9,     /* Porter-Duff "DST in SRC" */
-    IM_ALPHA_BLEND_SRC_OUT      = 1 << 10,    /* Porter-Duff "SRC out DST" */
-    IM_ALPHA_BLEND_DST_OUT      = 1 << 11,    /* Porter-Duff "DST out SRC" */
-    IM_ALPHA_BLEND_DST_OVER     = 1 << 12,    /* Porter-Duff "DST over SRC" */
-    IM_ALPHA_BLEND_SRC_ATOP     = 1 << 13,    /* Porter-Duff "SRC ATOP" */
-    IM_ALPHA_BLEND_DST_ATOP     = 1 << 14,    /* Porter-Duff "DST ATOP" */
-    IM_ALPHA_BLEND_XOR          = 1 << 15,    /* Xor */
-    IM_ALPHA_BLEND_MASK         = 0xffe0,
+    IM_ALPHA_BLEND_SRC_OVER     = 1 << 6,     /* Default, Porter-Duff "SRC over DST" */
+    IM_ALPHA_BLEND_SRC          = 1 << 7,     /* Porter-Duff "SRC" */
+    IM_ALPHA_BLEND_DST          = 1 << 8,     /* Porter-Duff "DST" */
+    IM_ALPHA_BLEND_SRC_IN       = 1 << 9,     /* Porter-Duff "SRC in DST" */
+    IM_ALPHA_BLEND_DST_IN       = 1 << 10,    /* Porter-Duff "DST in SRC" */
+    IM_ALPHA_BLEND_SRC_OUT      = 1 << 11,    /* Porter-Duff "SRC out DST" */
+    IM_ALPHA_BLEND_DST_OUT      = 1 << 12,    /* Porter-Duff "DST out SRC" */
+    IM_ALPHA_BLEND_DST_OVER     = 1 << 13,    /* Porter-Duff "DST over SRC" */
+    IM_ALPHA_BLEND_SRC_ATOP     = 1 << 14,    /* Porter-Duff "SRC ATOP" */
+    IM_ALPHA_BLEND_DST_ATOP     = 1 << 15,    /* Porter-Duff "DST ATOP" */
+    IM_ALPHA_BLEND_XOR          = 1 << 16,    /* Xor */
+    IM_ALPHA_BLEND_MASK         = 0x1ffc0,
 
-    IM_SYNC                     = 1 << 16,
-    IM_CROP                     = 1 << 17,
-    IM_COLOR_FILL               = 1 << 18,
-    IM_COLOR_PALETTE            = 1 << 19,
-    IM_NN_QUANTIZE              = 1 << 20,
-    IM_ROP                      = 1 << 21,
+    IM_ALPHA_COLORKEY_NORMAL    = 1 << 17,
+    IM_ALPHA_COLORKEY_INVERTED  = 1 << 18,
+    IM_ALPHA_COLORKEY_MASK      = 0x60000,
+
+    IM_SYNC                     = 1 << 19,
+    IM_CROP                     = 1 << 20,
+    IM_COLOR_FILL               = 1 << 21,
+    IM_COLOR_PALETTE            = 1 << 22,
+    IM_NN_QUANTIZE              = 1 << 23,
+    IM_ROP                      = 1 << 24,
+    IM_ALPHA_BLEND_PRE_MUL      = 1 << 25,
+
 } IM_USAGE;
 
 typedef enum {
@@ -75,47 +80,54 @@ typedef enum {
 } IM_ROP_CODE;
 
 typedef enum {
-    /*RGA version*/
-    IM_RGA_INFO_VERSION_RGA_1           = 1<< 0,
-    IM_RGA_INFO_VERSION_RGA_1_PLUS      = 1<< 1,
-    IM_RGA_INFO_VERSION_RGA_2           = 1<< 2,
-    IM_RGA_INFO_VERSION_RGA_2_LITE0     = 1<< 3,
-    IM_RGA_INFO_VERSION_RGA_2_LITE1     = 1<< 4,
-    IM_RGA_INFO_VERSION_RGA_2_ENHANCE   = 1<< 5,
-    IM_RGA_INFO_VERSION_MASK            = 0x3f,
-    /*RGA resolution*/
-    IM_RGA_INFO_RESOLUTION_INPUT_2048   = 1 << 6,
-    IM_RGA_INFO_RESOLUTION_INPUT_4096   = 1 << 7,
-    IM_RGA_INFO_RESOLUTION_INPUT_8192   = 1 << 8,
-    IM_RGA_INFO_RESOLUTION_INPUT_MASK   = 0x1c0,
-    IM_RGA_INFO_RESOLUTION_OUTPUT_2048  = 1 << 9,
-    IM_RGA_INFO_RESOLUTION_OUTPUT_4096  = 1 << 10,
-    IM_RGA_INFO_RESOLUTION_OUTPUT_8192  = 1 << 11,
-    IM_RGA_INFO_RESOLUTION_OUTPUT_MASK  = 0xe00,
-    /*RGA scale limit*/
-    IM_RGA_INFO_SCALE_LIMIT_8           = 1 << 12,
-    IM_RGA_INFO_SCALE_LIMIT_16          = 1 << 13,
-    IM_RGA_INFO_SCALE_LIMIT_MASK        = 0x3000,
-    /*RGA suport format*/
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_RGB       = 1 << 14,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_BP        = 1 << 15,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_YUV_8     = 1 << 16,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_YUV_10    = 1 << 17,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_YUYV      = 1 << 18,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_YUV400    = 1 << 19,
-    IM_RGA_INFO_SUPPORT_FORMAT_INPUT_MASK      = 0xfc000,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_RGB      = 1 << 20,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_BP       = 1 << 21,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_YUV_8    = 1 << 22,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_YUV_10   = 1 << 23,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_YUYV     = 1 << 24,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_YUV400   = 1 << 25,
-    IM_RGA_INFO_SUPPORT_FORMAT_OUTPUT_MASK     = 0x3f00000,
-    IM_RGA_INFO_PERFORMANCE_300         = 1 << 26,
-    IM_RGA_INFO_PERFORMANCE_520         = 1 << 27,
-    IM_RGA_INFO_PERFORMANCE_600         = 1 << 28,
-    IM_RGA_INFO_PERFORMANCE_MASK        = 0x1C000000,
-} IM_RGA_INFO_USAGE;
+    IM_RGA_SUPPORT_FORMAT_ERROR_INDEX = 0,
+    IM_RGA_SUPPORT_FORMAT_RGB_INDEX,
+    IM_RGA_SUPPORT_FORMAT_RGB_OTHER_INDEX,
+    IM_RGA_SUPPORT_FORMAT_BPP_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_8_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_10_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUYV_420_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUYV_422_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_400_INDEX,
+    IM_RGA_SUPPORT_FORMAT_Y4_INDEX,
+    IM_RGA_SUPPORT_FORMAT_MASK_INDEX,
+} IM_RGA_SUPPORT_FORMAT_INDEX;
+
+typedef enum {
+    IM_RGA_SUPPORT_FORMAT_ERROR     = 1 << IM_RGA_SUPPORT_FORMAT_ERROR_INDEX,
+    IM_RGA_SUPPORT_FORMAT_RGB       = 1 << IM_RGA_SUPPORT_FORMAT_RGB_INDEX,
+    IM_RGA_SUPPORT_FORMAT_RGB_OTHER = 1 << IM_RGA_SUPPORT_FORMAT_RGB_OTHER_INDEX,
+    IM_RGA_SUPPORT_FORMAT_BPP       = 1 << IM_RGA_SUPPORT_FORMAT_BPP_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_8     = 1 << IM_RGA_SUPPORT_FORMAT_YUV_8_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_10    = 1 << IM_RGA_SUPPORT_FORMAT_YUV_10_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUYV_420  = 1 << IM_RGA_SUPPORT_FORMAT_YUYV_420_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUYV_422  = 1 << IM_RGA_SUPPORT_FORMAT_YUYV_422_INDEX,
+    IM_RGA_SUPPORT_FORMAT_YUV_400   = 1 << IM_RGA_SUPPORT_FORMAT_YUV_400_INDEX,
+    IM_RGA_SUPPORT_FORMAT_Y4        = 1 << IM_RGA_SUPPORT_FORMAT_Y4_INDEX,
+    IM_RGA_SUPPORT_FORMAT_MASK      = ~((~(unsigned int)0x0 << IM_RGA_SUPPORT_FORMAT_MASK_INDEX) | 1),
+} IM_RGA_SUPPORT_FORMAT;
+
+typedef enum {
+    IM_RGA_SUPPORT_FEATURE_ERROR_INDEX = 0,
+    IM_RGA_SUPPORT_FEATURE_COLOR_FILL_INDEX,
+    IM_RGA_SUPPORT_FEATURE_COLOR_PALETTE_INDEX,
+    IM_RGA_SUPPORT_FEATURE_ROP_INDEX,
+    IM_RGA_SUPPORT_FEATURE_QUANTIZE_INDEX,
+    IM_RGA_SUPPORT_FEATURE_SRC1_R2Y_CSC_INDEX,
+    IM_RGA_SUPPORT_FEATURE_DST_FULL_CSC_INDEX,
+    IM_RGA_SUPPORT_FEATURE_MASK_INDEX,
+} IM_RGA_SUPPORT_FEATURE_INDEX;
+
+typedef enum {
+    IM_RGA_SUPPORT_FEATURE_ERROR          = 1 << IM_RGA_SUPPORT_FEATURE_ERROR_INDEX,
+    IM_RGA_SUPPORT_FEATURE_COLOR_FILL     = 1 << IM_RGA_SUPPORT_FEATURE_COLOR_FILL_INDEX,
+    IM_RGA_SUPPORT_FEATURE_COLOR_PALETTE  = 1 << IM_RGA_SUPPORT_FEATURE_COLOR_PALETTE_INDEX,
+    IM_RGA_SUPPORT_FEATURE_ROP            = 1 << IM_RGA_SUPPORT_FEATURE_ROP_INDEX,
+    IM_RGA_SUPPORT_FEATURE_QUANTIZE       = 1 << IM_RGA_SUPPORT_FEATURE_QUANTIZE_INDEX,
+    IM_RGA_SUPPORT_FEATURE_SRC1_R2Y_CSC   = 1 << IM_RGA_SUPPORT_FEATURE_SRC1_R2Y_CSC_INDEX,
+    IM_RGA_SUPPORT_FEATURE_DST_FULL_CSC   = 1 << IM_RGA_SUPPORT_FEATURE_DST_FULL_CSC_INDEX,
+    IM_RGA_SUPPORT_FEATURE_MASK           = ~((~(unsigned int)0x0 << IM_RGA_SUPPORT_FEATURE_MASK_INDEX) | 1),
+} IM_RGA_SUPPORT_FEATURE;
 
 /* Status codes, returned by any blit function */
 typedef enum {
@@ -130,14 +142,25 @@ typedef enum {
 
 /* Status codes, returned by any blit function */
 typedef enum {
-    IM_YUV_TO_RGB_BT601_FULL      = 1 << 0,
-    IM_YUV_TO_RGB_BT601_LIMIT     = 2 << 0,
+    IM_YUV_TO_RGB_BT601_LIMIT     = 1 << 0,
+    IM_YUV_TO_RGB_BT601_FULL      = 2 << 0,
     IM_YUV_TO_RGB_BT709_LIMIT     = 3 << 0,
     IM_YUV_TO_RGB_MASK            = 3 << 0,
-    IM_RGB_TO_YUV_BT601_LIMIT     = 1 << 2,
-    IM_RGB_TO_YUV_BT601_FULL      = 2 << 2,
+    IM_RGB_TO_YUV_BT601_FULL      = 1 << 2,
+    IM_RGB_TO_YUV_BT601_LIMIT     = 2 << 2,
     IM_RGB_TO_YUV_BT709_LIMIT     = 3 << 2,
     IM_RGB_TO_YUV_MASK            = 3 << 2,
+    IM_RGB_TO_Y4                  = 1 << 4,
+    IM_RGB_TO_Y4_DITHER           = 2 << 4,
+    IM_RGB_TO_Y1_DITHER           = 3 << 4,
+    IM_Y4_MASK                    = 3 << 4,
+    IM_RGB_FULL                   = 1 << 8,
+    IM_RGB_CLIP                   = 2 << 8,
+    IM_YUV_BT601_LIMIT_RANGE      = 3 << 8,
+    IM_YUV_BT601_FULL_RANGE       = 4 << 8,
+    IM_YUV_BT709_LIMIT_RANGE      = 5 << 8,
+    IM_YUV_BT709_FULL_RANGE       = 6 << 8,
+    IM_FULL_CSC_MASK              = 0xf << 8,
     IM_COLOR_SPACE_DEFAULT        = 0,
 } IM_COLOR_SPACE_MODE;
 
@@ -161,6 +184,7 @@ typedef enum {
     RGA_SCALE_LIMIT,
     RGA_INPUT_FORMAT,
     RGA_OUTPUT_FORMAT,
+    RGA_FEATURE,
     RGA_EXPECTED,
     RGA_ALL,
 } IM_INFORMATION;
@@ -178,6 +202,18 @@ typedef enum {
 
 //struct AHardwareBuffer AHardwareBuffer;
 
+typedef struct {
+    RGA_VERSION_NUM version;
+    unsigned int input_resolution;
+    unsigned int output_resolution;
+    unsigned int scale_limit;
+    unsigned int performance;
+    unsigned int input_format;
+    unsigned int output_format;
+    unsigned int feature;
+    char reserved[28];
+} rga_info_table_entry;
+
 /* Rectangle definition */
 typedef struct {
     int x;        /* upper-left x */
@@ -185,6 +221,12 @@ typedef struct {
     int width;    /* width */
     int height;   /* height */
 } im_rect;
+
+typedef struct {
+    int max;                    /* The Maximum value of the color key */
+    int min;                    /* The minimum value of the color key */
+} im_colorkey_range;
+
 
 typedef struct im_nn {
     int scale_r;                /* scaling factor on R channal */
@@ -208,9 +250,9 @@ typedef struct {
     int color_space_mode;               /* color_space_mode */
     int color;                          /* color, used by color fill */
     int global_alpha;                   /* global_alpha */
-    unsigned long lut_addr;             /* LUT/ pattern load base address */
+    im_colorkey_range colorkey_range;   /* range value of color key */
     im_nn_t nn;
-	int rop_code;
+    int rop_code;
 } rga_buffer_t;
 
 /*
@@ -300,7 +342,8 @@ IM_API rga_buffer_t wrapbuffer_fd_t(int fd, int width, int height, int wstride, 
  *
  * @returns a usage describing properties of RGA.
  */
-IM_API long rga_get_info();
+//IM_API int rga_get_info(rga_info_table_entry *);
+IM_API IM_STATUS rga_get_info(rga_info_table_entry *return_table);
 
 /*
  * Query RGA basic information, supported resolution, supported format, etc.
@@ -696,8 +739,39 @@ IM_API IM_STATUS imcopy_t(const rga_buffer_t src, rga_buffer_t dst, int sync);
         } \
         ret; \
     })
-
 IM_API IM_STATUS imblend_t(const rga_buffer_t srcA, const rga_buffer_t srcB, rga_buffer_t dst, int mode, int sync);
+
+/*
+ * color key
+ *
+ * @param src
+ * @param dst
+ * @param colorkey_range
+ *      max color
+ *      min color
+ * @param sync
+ *      wait until operation complete
+ *
+ * @returns success or else negative error code.
+ */
+#define imcolorkey(src, dst, range, ...) \
+    ({ \
+        IM_STATUS ret = IM_STATUS_SUCCESS; \
+        int args[] = {__VA_ARGS__}; \
+        int argc = sizeof(args)/sizeof(int); \
+        if (argc == 0) { \
+            ret = imcolorkey_t(src, dst, range, IM_ALPHA_COLORKEY_NORMAL, 1); \
+        } else if (argc == 1){ \
+            ret = imcolorkey_t(src, dst, range, args[0], 1); \
+        } else if (argc == 2){ \
+            ret = imcolorkey_t(src, dst, range, args[0], args[1]); \
+        } else { \
+            ret = IM_STATUS_INVALID_PARAM; \
+            printf("invalid parameter\n"); \
+        } \
+        ret; \
+    })
+IM_API IM_STATUS imcolorkey_t(const rga_buffer_t src, rga_buffer_t dst, im_colorkey_range range, int mode, int sync);
 
 /*
  * format convert

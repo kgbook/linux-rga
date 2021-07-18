@@ -22,7 +22,7 @@
 #ifdef LINUX
 #define __DEBUG 0
 
-#define ALOGE(...) printf(__VA_ARGS__); printf("\n")
+#define ALOGE(...) { printf(__VA_ARGS__); printf("\n"); }
 #endif
 
 struct rgaContext {
@@ -31,6 +31,7 @@ struct rgaContext {
     int mLogOnce;
     float mVersion;
     int Is_debug;
-
+    char mVersion_str[16];
+    char reserved[128];
 };
 #endif
